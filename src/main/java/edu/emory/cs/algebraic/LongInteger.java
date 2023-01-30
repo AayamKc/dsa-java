@@ -102,7 +102,7 @@ public class LongInteger extends SignedNumeral<LongInteger> implements Comparabl
         System.arraycopy(digits, 0, result, 0, digits.length);
 
         // add n to result
-        for (int i = 0; i < n.digits.length; i++) {
+        for (int i = 0; i < m; i++) {
             if (i < n.digits.length)
                 result[i] += n.digits[i];
             if (result[i] >= 10) {

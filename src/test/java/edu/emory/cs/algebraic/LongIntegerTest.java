@@ -1,6 +1,6 @@
 package edu.emory.cs.algebraic;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
