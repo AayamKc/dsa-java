@@ -62,9 +62,9 @@ public class LongInteger extends SignedNumeral<LongInteger> implements Comparabl
     /**
      * Sets the sign and values of this integer.
      * @param n the sign and values to be set.
-     * @throws NullPointerException when `n` is null.
+     * @throws NullPointerException      when `n` is null.
      * @throws InvalidParameterException when `n` contains non-digit character
-     *         except for the first character that can be [+-\d].
+     *                                   except for the first character that can be [+-\d].
      */
     public void set(String n) {
         // 'n' must not be null
@@ -114,6 +114,7 @@ public class LongInteger extends SignedNumeral<LongInteger> implements Comparabl
         // set this.digits
         digits = result[m] == 0 ? Arrays.copyOf(result, m) : result;
     }
+
 
     /**
      * Adds the specific integer that has a different sign from this integer.
