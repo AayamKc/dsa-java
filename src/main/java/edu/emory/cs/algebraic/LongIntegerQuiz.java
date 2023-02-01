@@ -17,11 +17,15 @@ public class LongIntegerQuiz extends LongInteger implements Comparable<LongInteg
         super("0");
     }
 
+    /**
+     * Adds the specific integer that has a different sign than this integer.
+     * @param n the integer to be added with a different sign
+     */
     @Override
     protected void addDifferentSign(LongInteger n) {
         int difference = compareAbsolute(n);
 
-        if (difference == 0 && (n.sign == Sign.POSITIVE)){ //edge case to turn 0 into -0
+        if (difference == 0 && (n.sign == Sign.POSITIVE)){
             sign = Sign.NEGATIVE;
             digits = new byte[]{0};
         }
@@ -33,12 +37,17 @@ public class LongIntegerQuiz extends LongInteger implements Comparable<LongInteg
 
         else if (difference > 0) {
             subtractAbsolute(n);
+
         } else {
             LongInteger copy = new LongInteger(this);
             set(String.valueOf(n));
             subtractAbsolute(copy);
         }
     }
+    /**
+     * Returns the difference between LongIntegers using their absolute value
+     * @param n the integer to be compred
+     */
     private int compareAbsolute(LongInteger n) {
         if (digits.length != n.digits.length)
             return digits.length - n.digits.length;
@@ -48,6 +57,10 @@ public class LongIntegerQuiz extends LongInteger implements Comparable<LongInteg
         return 0;
     }
 
+    /**
+     * Returns a LongInteger that is the result of subtraction between the instance and "n"
+     * @param n the integer to be compared
+     */
     private void subtractAbsolute(LongInteger n) {
         byte[] result = new byte[digits.length];
         System.arraycopy(digits, 0, result, 0, digits.length);
