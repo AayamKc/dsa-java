@@ -47,7 +47,7 @@ public class TernaryHeapQuiz<T extends Comparable<T>> extends AbstractPriorityQu
         return max;
     }
     //ensures that swapped node in remove() method ends up in the correct place in the heap
-    //k starts at root and i is always assigned as the largest child node
+    //k starts at root and "i" is always assigned as the largest child node
     //if the largest child is higher priority than k, a swap is made
     private void sink() {
         for (int k = 1, i = 2; i <= size(); k = i, i = (i * 3) - 1) {
@@ -66,7 +66,7 @@ public class TernaryHeapQuiz<T extends Comparable<T>> extends AbstractPriorityQu
             Collections.swap(keys, k, i);
         }
     }
-    // leaving this comment because I need to commit...
+    // leaving this comment because I need to commit....
 
     @Override
     public int size() {
