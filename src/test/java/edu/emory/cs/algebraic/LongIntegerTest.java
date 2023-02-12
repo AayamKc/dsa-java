@@ -52,4 +52,6 @@ public class LongIntegerTest {
         assertTrue(0 > new LongInteger("-34").compareTo(new LongInteger("12")));
         assertTrue(0 < new LongInteger("34").compareTo(new LongInteger("-12")));
     }
+
+    //does this commit work
 }
