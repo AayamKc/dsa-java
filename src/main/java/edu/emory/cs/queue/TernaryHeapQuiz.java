@@ -66,7 +66,7 @@ public class TernaryHeapQuiz<T extends Comparable<T>> extends AbstractPriorityQu
             Collections.swap(keys, k, i);
         }
     }
-    // leaving this comment because I need to commit.......
+    // leaving this comment because I need to commit........
 
     @Override
     public int size() {
