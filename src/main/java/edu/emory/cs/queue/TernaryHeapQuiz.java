@@ -51,15 +51,15 @@ public class TernaryHeapQuiz<T extends Comparable<T>> extends AbstractPriorityQu
     //if the largest child is higher priority than k, a swap is made
     private void sink() {
         for (int k = 1, i = 2; i <= size(); k = i, i = (i * 3) - 1) {
-            int right = i + 1, middle = i + 2, left = i + 3;
-            if (i < size() && compare(i, right) < 0) {
-                i = right;
+            int left = i + 1, middle = i + 2, right = i + 3;
+            if (i < size() && compare(i, left) < 0) {
+                i = left;
             }
             if (i < size()-1 && compare(i, middle) < 0) {
                 i = middle;
             }
-            if (i < size()-2 && compare(i, left) < 0) {
-                i = left;
+            if (i < size()-2 && compare(i, right) < 0) {
+                i = right;
             }
 
             if (compare(k, i) >= 0) break;
@@ -71,5 +71,5 @@ public class TernaryHeapQuiz<T extends Comparable<T>> extends AbstractPriorityQu
     public int size() {
         return keys.size() - 1;
     }
-// bruh
+
 }
