@@ -31,9 +31,7 @@ public class IntroSort<T extends Comparable<T>> extends QuickSort<T> {
     }
 
     protected int getMaxDepth(int beginIndex, int endIndex) {
-        //return 2 * (int)Utils.log2(endIndex - beginIndex);
-        return 0; //still gotta figure this out later
-
+        return 2 * (int)Utils.log2(endIndex - beginIndex);
     }
 
     private void sort(T[] array, int beginIndex, int endIndex, int maxdepth) {
