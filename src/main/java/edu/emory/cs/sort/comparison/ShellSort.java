@@ -1,4 +1,6 @@
-package edu.emory.cs.sort;
+package edu.emory.cs.sort.comparison;
+
+import edu.emory.cs.sort.comparison.InsertionSort;
 
 import java.util.ArrayList;
 import java.util.Comparator;

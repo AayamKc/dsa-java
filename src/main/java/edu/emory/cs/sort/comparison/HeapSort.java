@@ -1,4 +1,6 @@
-package edu.emory.cs.sort;
+package edu.emory.cs.sort.comparison;
+
+import edu.emory.cs.sort.AbstractSort;
 
 import java.util.Comparator;
 public class HeapSort<T extends Comparable<T>> extends AbstractSort<T> {
