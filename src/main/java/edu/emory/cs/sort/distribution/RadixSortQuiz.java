@@ -14,33 +14,24 @@ public class RadixSortQuiz extends RadixSort {
     @Override
     public void sort(Integer[] array, int beginIndex, int endIndex) {
         int MAX = getMaxBit(array, beginIndex, endIndex);
-        do {
-            int maxBit = getMaxBit(array, beginIndex, endIndex);
-            if (maxBit == 0) return;
-            int div = (int) Math.pow(10, (maxBit - 1));
-            ArrayList<Integer> indexes = msdSort(array, beginIndex, endIndex, key -> (key / div) % 10);
-            for (int i = 9; i >= 0; i--) {
-                if (indexes.get(i) < 0)
-                    sort(array, i + indexes.get(i), endIndex - indexes.get(i), MAX = MAX - 1);
-            }
-
-        }
-        while(MAX > 1);
+        MSDsort(array, beginIndex, endIndex, MAX);
     }
 
-    public void sort(Integer[] array, int beginIndex, int endIndex, int MAX){
-        if (beginIndex >= endIndex || MAX <= 1) return;
-        int div = (int) Math.pow(10, (MAX - 1));
-        ArrayList<Integer> indexes = msdSort(array, beginIndex, endIndex, key -> (key / div) % 10);
-        for (int i = 9; i >= 0; i--) {
-            if (indexes.get(i) != 0)
-                sort(array, i + indexes.get(i), endIndex - indexes.get(i));
-        }
+
+
+
+
+    public void MSDsort(Integer[] array, int beginIndex, int endIndex, int currentDec) {
+        if (currentDec == 0)
+            return;
+        int div = (int) Math.pow(10, currentDec-1);
+        ArrayList<Integer>  indexes = MODDEDsort(array, beginIndex, endIndex, key -> (key / div) % 10);
 
     }
 
 
-    private ArrayList<Integer> msdSort(Integer[] array, int beginIndex, int endIndex, Function<Integer, Integer> bucketIndex) {
+    //similar implementation to
+    private ArrayList<Integer> MODDEDsort(Integer[] array, int beginIndex, int endIndex, Function<Integer, Integer> bucketIndex) {
         ArrayList<Integer> indexes = new ArrayList<>();
         int size = endIndex - beginIndex;
         Integer[] temp = new Integer[size];
