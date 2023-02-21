@@ -1,4 +1,6 @@
-package edu.emory.cs.sort;
+package edu.emory.cs.sort.distribution;
+
+import edu.emory.cs.sort.distribution.BucketSort;
 
 public class IntegerBucketSort extends BucketSort<Integer> {
     private final int MIN;

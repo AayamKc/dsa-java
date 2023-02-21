@@ -1,4 +1,6 @@
-package edu.emory.cs.sort;
+package edu.emory.cs.sort.distribution;
+
+import edu.emory.cs.sort.distribution.RadixSort;
 
 public class LSDRadixSort extends RadixSort {
     @Override

@@ -1,4 +1,4 @@
-package edu.emory.cs.sort;
+package edu.emory.cs.sort.divide_conquer;
 
 import java.util.Comparator;
 

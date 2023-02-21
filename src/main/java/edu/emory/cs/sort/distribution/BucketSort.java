@@ -1,4 +1,6 @@
-package edu.emory.cs.sort;
+package edu.emory.cs.sort.distribution;
+
+import edu.emory.cs.sort.divide_conquer.AbstractSort;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

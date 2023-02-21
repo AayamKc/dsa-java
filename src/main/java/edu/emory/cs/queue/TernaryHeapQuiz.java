@@ -33,7 +33,7 @@ public class TernaryHeapQuiz<T extends Comparable<T>> extends AbstractPriorityQu
     //swaps if heap is out of order
     //comparisons happen until the root of the tree is reached
     private void swim(int k){
-        for(; 1 < k && compare((k+1)/3 ,k) < 0; k = (k+1)/3)
+        for(; 1 < k && compare((k+1)/3 ,k) < 0; k = (k+1)/3) //inefficient dumbass
             Collections.swap(keys, (k+1)/3, k);
     }
 
