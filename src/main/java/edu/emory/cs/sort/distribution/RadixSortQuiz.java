@@ -1,59 +1,38 @@
 package edu.emory.cs.sort.distribution;
-
-import org.w3c.dom.ls.LSOutput;
-
-import java.sql.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.function.Function;
-
 public class RadixSortQuiz extends RadixSort {
-
-
     @Override
     public void sort(Integer[] array, int beginIndex, int endIndex) {
-        int MAX = getMaxBit(array, beginIndex, endIndex);
-        MSDsort(array, beginIndex, endIndex, MAX);
+        int CurrentPOW = getMaxBit(array, beginIndex, endIndex);
+        MSDSort(array, beginIndex, endIndex, CurrentPOW);
     }
 
-
-
-
-
-    public void MSDsort(Integer[] array, int beginIndex, int endIndex, int currentDec) {
-        if (currentDec == 0)
-            return;
-        int div = (int) Math.pow(10, currentDec-1);
-        ArrayList<Integer>  indexes = MODDEDsort(array, beginIndex, endIndex, key -> (key / div) % 10);
-
+    //MSD algorithm (if you are reading, I really hope this code is running)
+    public void MSDSort(Integer[] array, int beginIndex, int endIndex, int CurrentPOW) {
+        if (CurrentPOW == 0) return;
+        int div = (int) Math.pow(10, CurrentPOW - 1);
+        ArrayList<Integer> indexes = BucketSortMod(array, beginIndex, endIndex, key -> (key / div) % 10);
+        for (int i = 9; i >= 0; i--) {
+            MSDSort(array, endIndex - indexes.get(i), endIndex, CurrentPOW - 1);
+            endIndex -= indexes.get(i);
+        }
     }
-
-
-    //similar implementation to
-    private ArrayList<Integer> MODDEDsort(Integer[] array, int beginIndex, int endIndex, Function<Integer, Integer> bucketIndex) {
-        ArrayList<Integer> indexes = new ArrayList<>();
-        int size = endIndex - beginIndex;
-        Integer[] temp = new Integer[size];
-
+    //pretty much the same implementation as BucketSort
+    //returns an array of bucketSizes to make partitioning the array for recursive calls easier
+    private ArrayList<Integer> BucketSortMod(Integer[] array, int beginIndex, int endIndex, Function<Integer, Integer> bucketIndex) {
         // add each element in the input array to the corresponding bucket
+        ArrayList<Integer> bucketSizes = new ArrayList<>();
         for (int i = beginIndex; i < endIndex; i++)
             buckets.get(bucketIndex.apply(array[i])).add(array[i]);
-        // merge elements in all buckets to the temporary array
-        int pos = 0;
+        // merge elements in all buckets to the input array
         for (Deque<Integer> bucket : buckets) {
-            if(!bucket.isEmpty())
-                indexes.add(bucket.size());
-            else
-                indexes.add(0);
-            while (!bucket.isEmpty())
-                temp[pos++] = bucket.remove();
+            bucketSizes.add(bucket.size());
+            while (!bucket.isEmpty()) {
+                array[beginIndex++] = bucket.remove();
+            }
         }
-
-        // copy the sorted elements from the temporary array back to the input array
-        System.arraycopy(temp, 0, array, beginIndex, size);
-
-        return indexes;
+        return bucketSizes;
     }
-
 }
