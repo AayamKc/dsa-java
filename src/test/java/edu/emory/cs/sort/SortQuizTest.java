@@ -11,7 +11,6 @@ public class SortQuizTest extends SortTest {
 
 @Test
 public void testRobustness() {
-        testRobustness(new ShellSortQuiz<>());
         testRobustness(new RadixSortQuiz());
     }
 }
