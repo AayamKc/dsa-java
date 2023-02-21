@@ -13,11 +13,30 @@ public class RadixSortQuiz extends RadixSort {
 
     @Override
     public void sort(Integer[] array, int beginIndex, int endIndex) {
-        int maxBit = getMaxBit(array, beginIndex, endIndex);
-        if (maxBit == 0) return;
-        int div = (int) Math.pow(10, (maxBit - 1));
+        int MAX = getMaxBit(array, beginIndex, endIndex);
+        do {
+            int maxBit = getMaxBit(array, beginIndex, endIndex);
+            if (maxBit == 0) return;
+            int div = (int) Math.pow(10, (maxBit - 1));
+            ArrayList<Integer> indexes = msdSort(array, beginIndex, endIndex, key -> (key / div) % 10);
+            for (int i = 9; i >= 0; i--) {
+                if (indexes.get(i) < 0)
+                    sort(array, i + indexes.get(i), endIndex - indexes.get(i), MAX = MAX - 1);
+            }
+
+        }
+        while(MAX > 1);
+    }
+
+    public void sort(Integer[] array, int beginIndex, int endIndex, int MAX){
+        if (beginIndex >= endIndex || MAX <= 1) return;
+        int div = (int) Math.pow(10, (MAX - 1));
         ArrayList<Integer> indexes = msdSort(array, beginIndex, endIndex, key -> (key / div) % 10);
-        System.out.println(indexes);
+        for (int i = 9; i >= 0; i--) {
+            if (indexes.get(i) != 0)
+                sort(array, i + indexes.get(i), endIndex - indexes.get(i));
+        }
+
     }
 
 
