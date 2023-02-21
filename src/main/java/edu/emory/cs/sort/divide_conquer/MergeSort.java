@@ -1,6 +1,6 @@
 package edu.emory.cs.sort.divide_conquer;
 
-import edu.emory.cs.sort.divide_conquer.AbstractSort;
+import edu.emory.cs.sort.AbstractSort;
 import edu.emory.cs.utils.Utils;
 
 import java.lang.reflect.Array;
