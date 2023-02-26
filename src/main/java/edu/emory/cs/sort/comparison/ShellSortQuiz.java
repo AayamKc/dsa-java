@@ -16,6 +16,7 @@ public class ShellSortQuiz <T extends Comparable <T>> extends ShellSort<T>{
     protected void populateSequence(int n) {
         n /= 3;
 
+
         for (int t = sequence.size() + 1; ; t++) {
             int h = (int) (Math.pow(2, t) - 1);
             if (h <= n) sequence.add(h);

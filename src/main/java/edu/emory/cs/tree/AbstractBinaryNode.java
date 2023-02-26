@@ -10,33 +10,51 @@ public abstract class AbstractBinaryNode<T extends Comparable<T>, N extends Abst
         setKey(key);
     }
 
-    public boolean hasParent() { return parent != null; }
+    public boolean hasParent() {
+        return parent != null;
+    }
 
-    public boolean hasLeftChild() { return left_child != null; }
+    public boolean hasLeftChild() {
+        return left_child != null;
+    }
 
-    public boolean hasRightChild() { return right_child != null; }
+    public boolean hasRightChild() {
+        return right_child != null;
+    }
 
     public boolean hasBothChildren() {
         return hasLeftChild() && hasRightChild();
     }
 
-    /** @return true if the specific node is the left child of this node. */
+    /**
+     * @return true if the specific node is the left child of this node.
+     */
     public boolean isLeftChild(N node) {
         return left_child == node;
     }
 
-    /** @return true if the specific node is the right child of this node. */
+    /**
+     * @return true if the specific node is the right child of this node.
+     */
     public boolean isRightChild(N node) {
         return right_child == node;
     }
 
-    public T getKey() { return key; }
+    public T getKey() {
+        return key;
+    }
 
-    public N getParent() { return parent; }
+    public N getParent() {
+        return parent;
+    }
 
-    public N getLeftChild() { return left_child; }
+    public N getLeftChild() {
+        return left_child;
+    }
 
-    public N getRightChild() { return right_child; }
+    public N getRightChild() {
+        return right_child;
+    }
 
     public N getGrandParent() {
         return hasParent() ? parent.getParent() : null;
@@ -46,7 +64,7 @@ public abstract class AbstractBinaryNode<T extends Comparable<T>, N extends Abst
     public N getSibling() {
         if (hasParent()) {
             N parent = getParent();
-            return parent.isLeftChild((N)this) ? parent.getRightChild() : parent.getLeftChild();
+            return parent.isLeftChild((N) this) ? parent.getRightChild() : parent.getLeftChild();
         }
 
         return null;
@@ -56,9 +74,13 @@ public abstract class AbstractBinaryNode<T extends Comparable<T>, N extends Abst
         return hasParent() ? parent.getSibling() : null;
     }
 
-    public void setKey(T key) { this.key = key; }
+    public void setKey(T key) {
+        this.key = key;
+    }
 
-    public void setParent(N node) { parent = node; }
+    public void setParent(N node) {
+        parent = node;
+    }
 
     public void setLeftChild(N node) {
         replaceParent(node);
@@ -72,18 +94,20 @@ public abstract class AbstractBinaryNode<T extends Comparable<T>, N extends Abst
 
     /**
      * Replaces the parent of the specific node to be this node.
+     *
      * @param node the node whose parent to be replaced.
      */
     @SuppressWarnings("unchecked")
     protected void replaceParent(N node) {
         if (node != null) {
             if (node.hasParent()) node.getParent().replaceChild(node, null);
-            node.setParent((N)this);
+            node.setParent((N) this);
         }
     }
 
     /**
      * Replaces the old child with the new child if exists.
+     *
      * @param oldChild the old child of this node to be replaced.
      * @param newChild the new child to be added to this node.
      */
@@ -91,5 +115,4 @@ public abstract class AbstractBinaryNode<T extends Comparable<T>, N extends Abst
         if (isLeftChild(oldChild)) setLeftChild(newChild);
         else if (isRightChild(oldChild)) setRightChild(newChild);
     }
-
 }
