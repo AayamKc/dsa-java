@@ -10,8 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
-    private static final int DEFAULT_PARALLELISM = 3;
-    private final AbstractSort<T> engine;
+    private static final int DEFAULT_PARALLELISM = 4;
     private final int parallelism;
 
     public HybridSortHW() {
@@ -20,7 +19,6 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
 
     public HybridSortHW(int parallelism) {
         this.parallelism = parallelism;
-        engine = new IntroSort<>(new InsertionSort<T>());
     }
 
     @Override
@@ -88,27 +86,49 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
         // Create an array to hold the values from each row
         T[] output = (T[]) Array.newInstance(input[0][0].getClass(), totalSize);
 
-        // Create a merge heap to hold the first value from each row
-        MergeHeap<T> heap = new MergeHeap<>(numRows);
-        for (int i = 0; i < numRows; i++) {
-            T[] row = input[i];
-            if (row.length > 0) {
-                heap.add(new IndexedValue<>(row[0], i, 0));
+        // Divide the input array into smaller sub-arrays
+        int numSubArrays = Math.min(numRows, parallelism);
+        int subArraySize = (int) Math.ceil((double) numRows / numSubArrays);
+
+        // Create a merge heap for each sub-array
+        MergeHeap<T>[] heaps = (MergeHeap<T>[]) new MergeHeap[numSubArrays];
+        for (int i = 0; i < numSubArrays; i++) {
+            int start = i * subArraySize;
+            int end = Math.min(start + subArraySize, numRows);
+
+            heaps[i] = new MergeHeap<>(end - start);
+            for (int j = start; j < end; j++) {
+                T[] row = input[j];
+                if (row.length > 0) {
+                    heaps[i].add(new IndexedValue<>(row[0], j, 0));
+                }
             }
         }
 
-        // Merge the rows by repeatedly removing the smallest value from the merge heap
-        int outputIndex = 0;
-        while (!heap.isEmpty()) {
-            IndexedValue<T> value = heap.removeMin();
-            output[outputIndex++] = value.getValue();
+        // Merge the sub-arrays in parallel
+        ExecutorService threadPool = Executors.newFixedThreadPool(parallelism);
+        for (MergeHeap<T> heap : heaps) {
+            threadPool.submit(() -> {
+                int outputIndex = 0;
+                while (!heap.isEmpty()) {
+                    IndexedValue<T> value = heap.removeMin();
+                    output[outputIndex++] = value.getValue();
 
-            // If there are more values in the same row, add the next value to the merge heap
-            int colIndex = value.getColIndex() + 1;
-            if (colIndex < input[value.getRowIndex()].length) {
-                heap.add(new IndexedValue<>(input[value.getRowIndex()][colIndex],
-                        value.getRowIndex(), colIndex));
-            }
+                    // If there are more values in the same row, add the next value to the merge heap
+                    int colIndex = value.getColIndex() + 1;
+                    if (colIndex < input[value.getRowIndex()].length) {
+                        heap.add(new IndexedValue<>(input[value.getRowIndex()][colIndex],
+                                value.getRowIndex(), colIndex));
+                    }
+                }
+            });
+        }
+
+        threadPool.shutdown();
+        try {
+            threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         return output;
