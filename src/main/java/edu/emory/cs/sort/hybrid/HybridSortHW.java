@@ -1,23 +1,26 @@
 package edu.emory.cs.sort.hybrid;
 
 import edu.emory.cs.sort.AbstractSort;
-import edu.emory.cs.sort.comparison.HeapSort;
 import edu.emory.cs.sort.comparison.InsertionSort;
-import edu.emory.cs.sort.comparison.ShellSortKnuth;
-import edu.emory.cs.sort.comparison.ShellSortQuiz;
 import edu.emory.cs.sort.divide_conquer.IntroSort;
 import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.PriorityQueue;
-
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
-    private static final int DEFAULT_PARALLELISM = 8;
+    private static final int DEFAULT_PARALLELISM = 3;
     private final AbstractSort<T> engine;
+    private final int parallelism;
 
     public HybridSortHW() {
-        engine = new IntroSort<>(new ShellSortKnuth<T>());
+        this(DEFAULT_PARALLELISM);
+    }
+
+    public HybridSortHW(int parallelism) {
+        this.parallelism = parallelism;
+        engine = new IntroSort<>(new InsertionSort<T>());
     }
 
     @Override
@@ -28,10 +31,22 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
 
     public void sortRows(T[][] arr) {
         int threshold = 15;
+        ExecutorService threadPool = Executors.newFixedThreadPool(parallelism);
+
         for (T[] row : arr) {
-            mergeSort(row, threshold);
+            threadPool.submit(() -> {
+                mergeSort(row, threshold);
+            });
+        }
+
+        threadPool.shutdown();
+        try {
+            threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
+
 
     private void mergeSort(T[] arr, int threshold) {
         if (arr.length <= threshold) {
