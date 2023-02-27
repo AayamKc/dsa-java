@@ -29,11 +29,40 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
     public void sortRows(T[][] arr) {
         int threshold = 15;
         for (T[] row : arr) {
-            if (row.length > threshold) {
-                engine.sort(row);
+            mergeSort(row, threshold);
+        }
+    }
+
+    private void mergeSort(T[] arr, int threshold) {
+        if (arr.length <= threshold) {
+            new InsertionSort<T>().sort(arr);
+            return;
+        }
+
+        int mid = arr.length / 2;
+        T[] left = Arrays.copyOfRange(arr, 0, mid);
+        T[] right = Arrays.copyOfRange(arr, mid, arr.length);
+
+        mergeSort(left, threshold);
+        mergeSort(right, threshold);
+
+        merge(arr, left, right);
+    }
+
+    private void merge(T[] arr, T[] left, T[] right) {
+        int i = 0, j = 0, k = 0;
+        while (i < left.length && j < right.length) {
+            if (left[i].compareTo(right[j]) <= 0) {
+                arr[k++] = left[i++];
             } else {
-                new InsertionSort<T>().sort(row);
+                arr[k++] = right[j++];
             }
+        }
+        while (i < left.length) {
+            arr[k++] = left[i++];
+        }
+        while (j < right.length) {
+            arr[k++] = right[j++];
         }
     }
 
