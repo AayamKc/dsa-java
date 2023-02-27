@@ -65,7 +65,7 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
             arr[k++] = right[j++];
         }
     }
-
+    @SuppressWarnings("unchecked")
     public T[] mergeRows(T[][] input) {
         int numRows = input.length;
         int totalSize = Arrays.stream(input).mapToInt(row -> row.length).sum();
