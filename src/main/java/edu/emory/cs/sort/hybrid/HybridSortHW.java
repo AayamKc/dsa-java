@@ -2,23 +2,23 @@ package edu.emory.cs.sort.hybrid;
 
 import edu.emory.cs.sort.AbstractSort;
 import edu.emory.cs.sort.comparison.InsertionSort;
+import edu.emory.cs.sort.comparison.ShellSortKnuth;
 import edu.emory.cs.sort.divide_conquer.IntroSort;
+import edu.emory.cs.sort.divide_conquer.MergeSort;
+
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+// removed all multithreading
+
 public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
-    private static final int DEFAULT_PARALLELISM = 4;
-    private final int parallelism;
 
     public HybridSortHW() {
-        this(DEFAULT_PARALLELISM);
-    }
-
-    public HybridSortHW(int parallelism) {
-        this.parallelism = parallelism;
     }
 
     @Override
@@ -29,35 +29,38 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
 
     public void sortRows(T[][] arr) {
         int threshold = 15;
-        ExecutorService threadPool = Executors.newFixedThreadPool(parallelism);
-
         for (T[] row : arr) {
-            threadPool.submit(() -> {
-                mergeSort(row, threshold);
-            });
-        }
-
-        threadPool.shutdown();
-        try {
-            threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            hybridSort(row, threshold);
         }
     }
 
+    private void hybridSort(T[] arr, int threshold) {
 
-    private void mergeSort(T[] arr, int threshold) {
+        //O(n) time if it's already sorted to check
+        if (isSorted(arr)) return;
+
+        //takes n time to check and n time to reverse
+        //O(n) vs nlogn og mergeSort
+        if(isSortedDescending(arr)){
+            reverseArray(arr);
+            return;
+        }
+
+        //insertion sort for smaller arrays
         if (arr.length <= threshold) {
             new InsertionSort<T>().sort(arr);
             return;
         }
 
+        //mergeSort implementation... runs faster here than when I use the engine to mergeSort
+        //average case is nlogn
+        // tried introSort and mergeSort was always faster for me
         int mid = arr.length / 2;
         T[] left = Arrays.copyOfRange(arr, 0, mid);
         T[] right = Arrays.copyOfRange(arr, mid, arr.length);
 
-        mergeSort(left, threshold);
-        mergeSort(right, threshold);
+        hybridSort(left, threshold);
+        hybridSort(right, threshold);
 
         merge(arr, left, right);
     }
@@ -78,6 +81,7 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
             arr[k++] = right[j++];
         }
     }
+
     @SuppressWarnings("unchecked")
     public T[] mergeRows(T[][] input) {
         int numRows = input.length;
@@ -86,62 +90,48 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
         // Create an array to hold the values from each row
         T[] output = (T[]) Array.newInstance(input[0][0].getClass(), totalSize);
 
-        // Divide the input array into smaller sub-arrays
-        int numSubArrays = Math.min(numRows, parallelism);
-        int subArraySize = (int) Math.ceil((double) numRows / numSubArrays);
+        // Create an array to hold the current index for each row
+        int[] index = new int[numRows];
 
-        // Create a merge heap for each sub-array
-        MergeHeap<T>[] heaps = (MergeHeap<T>[]) new MergeHeap[numSubArrays];
-        for (int i = 0; i < numSubArrays; i++) {
-            int start = i * subArraySize;
-            int end = Math.min(start + subArraySize, numRows);
-
-            heaps[i] = new MergeHeap<>(end - start);
-            for (int j = start; j < end; j++) {
-                T[] row = input[j];
-                if (row.length > 0) {
-                    heaps[i].add(new IndexedValue<>(row[0], j, 0));
-                }
+        // Create a merge heap to hold the first value from each row
+        MergeHeap<T> heap = new MergeHeap<>(numRows);
+        for (int i = 0; i < numRows; i++) {
+            T[] row = input[i];
+            if (row.length > 0) {
+                heap.add(new IndexOfValue<>(row[0], i, 0));
             }
         }
 
-        // Merge the sub-arrays in parallel
-        ExecutorService threadPool = Executors.newFixedThreadPool(parallelism);
-        for (MergeHeap<T> heap : heaps) {
-            threadPool.submit(() -> {
-                int outputIndex = 0;
-                while (!heap.isEmpty()) {
-                    IndexedValue<T> value = heap.removeMin();
-                    output[outputIndex++] = value.getValue();
+        // Merge the rows by repeatedly removing the smallest value from the merge heap
+        int outputIndex = 0;
+        while (!heap.isEmpty()) {
+            IndexOfValue<T> value = heap.removeMin();
+            output[outputIndex++] = value.getValue();
 
-                    // If there are more values in the same row, add the next value to the merge heap
-                    int colIndex = value.getColIndex() + 1;
-                    if (colIndex < input[value.getRowIndex()].length) {
-                        heap.add(new IndexedValue<>(input[value.getRowIndex()][colIndex],
-                                value.getRowIndex(), colIndex));
-                    }
-                }
-            });
-        }
+            // Update the current index for the row that provided the value
+            index[value.getRowIndex()]++;
 
-        threadPool.shutdown();
-        try {
-            threadPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            // If there are more values in the same row, add the next value to the merge heap
+            int colIndex = index[value.getRowIndex()];
+            if (colIndex < input[value.getRowIndex()].length) {
+                heap.add(new IndexOfValue<>(input[value.getRowIndex()][colIndex],
+                        value.getRowIndex(), colIndex));
+            }
         }
 
         return output;
     }
 
-    // A merge heap implementation
+    // Min heap to merge arrays
+    // brain too small to do recursion
+    // all the heap methods do what they are titled
     private static class MergeHeap<T extends Comparable<T>> {
-        private final IndexedValue<T>[] heap;
+        private final IndexOfValue<T>[] heap;
         private int size;
 
         @SuppressWarnings("unchecked")
         public MergeHeap(int capacity) {
-            heap = (IndexedValue<T>[]) Array.newInstance(IndexedValue.class, capacity + 1);
+            heap = (IndexOfValue<T>[]) Array.newInstance(IndexOfValue.class, capacity + 1);
             size = 0;
         }
 
@@ -149,13 +139,13 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
             return size == 0;
         }
 
-        public void add(IndexedValue<T> value) {
+        public void add(IndexOfValue<T> value) {
             heap[++size] = value;
             swim(size);
         }
 
-        public IndexedValue<T> removeMin() {
-            IndexedValue<T> min = heap[1];
+        public IndexOfValue<T> removeMin() {
+            IndexOfValue<T> min = heap[1];
             heap[1] = heap[size--];
             sink(1);
             return min;
@@ -179,7 +169,7 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
         }
 
         private void swap(int i, int j) {
-            IndexedValue<T> temp = heap[i];
+            IndexOfValue<T> temp = heap[i];
             heap[i] = heap[j];
             heap[j] = temp;
         }
@@ -187,19 +177,19 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
 
 
     // A helper class to hold a value along with its row and column indices
-    private static class IndexedValue<T extends Comparable<T>> implements Comparable<IndexedValue<T>> {
+    private static class IndexOfValue<T extends Comparable<T>> implements Comparable<IndexOfValue<T>> {
         public final T value;
         public final int rowIndex;
         public final int colIndex;
 
-        public IndexedValue(T value, int rowIndex, int colIndex) {
+        public IndexOfValue(T value, int rowIndex, int colIndex) {
             this.value = value;
             this.rowIndex = rowIndex;
             this.colIndex = colIndex;
         }
 
         @Override
-        public int compareTo(IndexedValue<T> o) {
+        public int compareTo(IndexOfValue<T> o) {
             return value.compareTo(o.value);
         }
 
@@ -215,4 +205,35 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
             return rowIndex;
         }
     }
+
+    public static <T extends Comparable<T>> boolean isSorted(T[] arr) {
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i-1].compareTo(arr[i]) > 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static <T extends Comparable<T>> boolean isSortedDescending(T[] arr) {
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i].compareTo(arr[i-1]) > 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static <T> void reverseArray(T[] arr) {
+        int left = 0;
+        int right = arr.length - 1;
+        while (left < right) {
+            T temp = arr[left];
+            arr[left] = arr[right];
+            arr[right] = temp;
+            left++;
+            right--;
+        }
+    }
+    
 }

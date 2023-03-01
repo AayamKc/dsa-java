@@ -1,6 +1,7 @@
 package edu.emory.cs.sort.hybrid;
 
 import edu.emory.cs.sort.AbstractSort;
+import edu.emory.cs.sort.comparison.HeapSort;
 import edu.emory.cs.sort.comparison.ShellSortKnuth;
 import edu.emory.cs.sort.divide_conquer.IntroSort;
 import edu.emory.cs.sort.divide_conquer.QuickSort;
@@ -13,7 +14,7 @@ public class HybridSortBaseline<T extends Comparable<T>> implements HybridSort<T
     private final AbstractSort<T> engine;
 
     public HybridSortBaseline() {
-        engine = new IntroSort<T>(new ShellSortKnuth<T>());
+        engine = new IntroSort<T>(new HeapSort<>());
     }
 
     @Override
