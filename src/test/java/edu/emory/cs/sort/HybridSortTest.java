@@ -18,6 +18,7 @@ package edu.emory.cs.sort;
 import edu.emory.cs.sort.hybrid.HybridSort;
 import edu.emory.cs.sort.hybrid.HybridSortBaseline;
 import edu.emory.cs.sort.hybrid.HybridSortHW;
+import edu.emory.cs.sort.hybrid.HybridSortParallel;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -35,8 +36,8 @@ public class HybridSortTest {
 
     @Test
     public void testRobustness() {
-        HybridSort<Integer> gold = new HybridSortHW<>();
-        HybridSort<Integer> mine = new HybridSortHW<>();  // TODO: replace with your class
+        HybridSort<Integer> gold = new HybridSortBaseline<>();
+        HybridSort<Integer> mine = new HybridSortParallel<>();  // TODO: replace with your class
 
         Integer[][] input = {{0, 1, 2, 3}, {7, 6, 5, 4}, {0, 3, 1, 2}, {4, 7, 6, 5}, {9, 8, 11, 10}};
         testRobustness(input, gold, mine);
@@ -44,7 +45,7 @@ public class HybridSortTest {
         for (int row = 10; row <= 20; row++)
             for (int col = 10; col <= 20; col++)
                 for (int i = 0; i < 100; i++)
-                    testRobustness(randomInput(row, col, 0.25), gold, mine);
+                    testRobustness(randomInput(row, col, .25), gold, mine);
     }
 
     void testRobustness(Integer[][] input, HybridSort<Integer> choi, HybridSort<Integer> mine) {
@@ -58,7 +59,7 @@ public class HybridSortTest {
     public void testSpeed() {
         HybridSort<Integer> gold = new HybridSortBaseline<>();
         HybridSort<Integer> mine = new HybridSortHW<>();  // TODO: replace with your class
-        double ratio = .25;
+        double ratio = 0;
         int row = 100, col;
 
         for (col = 100; col <= 1000; col += 100) {    // for (row = 100; row <= 1000; row += 100) {

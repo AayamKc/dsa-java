@@ -7,30 +7,54 @@ import edu.emory.cs.sort.divide_conquer.IntroSort;
 import edu.emory.cs.sort.divide_conquer.MergeSort;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-// removed all multithreading
-
-public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
-
-    public HybridSortHW() {
+public class HybridSortParallel<T extends Comparable<T>> implements HybridSort<T> {
+    private final int threads;
+    public HybridSortParallel() {
+        this.threads = 3;
     }
 
+    public HybridSortParallel(int threads){
+        this.threads = threads;
+    }
+
+    //3 works bet for the smaller arrays
     @Override
     public T[] sort(T[][] input) {
-        sortRows(input);
+        sortRows(input, this.threads);
         return mergeRows(input);
     }
 
-    public void sortRows(T[][] arr) {
+    public void sortRows(T[][] arr, int numThreads) {
         int threshold = 15;
-        for (T[] row : arr) {
-            hybridSort(row, threshold);
+        int rowsPerThread = arr.length / numThreads;
+        ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
+        int start = 0, end = 0;
+
+        for (int i = 0; i < numThreads; i++) {
+            start = i * rowsPerThread;
+            end = (i + 1) * rowsPerThread;
+            if (i == numThreads - 1) {
+                end = arr.length;
+            }
+            int finalStart = start;
+            int finalEnd = end;
+            executorService.execute(() -> {
+                for (int j = finalStart; j < finalEnd; j++) {
+                    hybridSort(arr[j], threshold);
+                }
+            });
+        }
+
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -249,5 +273,5 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
         }
         return true;
     }
-    
+
 }
