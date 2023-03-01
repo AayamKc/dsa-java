@@ -87,10 +87,10 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
         int numRows = input.length;
         int totalSize = Arrays.stream(input).mapToInt(row -> row.length).sum();
 
-        // Create an array to hold the values from each row
+        // array to hold the values from each row
         T[] output = (T[]) Array.newInstance(input[0][0].getClass(), totalSize);
 
-        // Create an array to hold the current index for each row
+        // array to store current index for each row
         int[] index = new int[numRows];
 
         // Create a merge heap to hold the first value from each row
@@ -102,13 +102,13 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
             }
         }
 
-        // Merge the rows by repeatedly removing the smallest value from the merge heap
+        //add values from input array to heap to output array
         int outputIndex = 0;
         while (!heap.isEmpty()) {
             IndexOfValue<T> value = heap.removeMin();
             output[outputIndex++] = value.getValue();
 
-            // Update the current index for the row that provided the value
+            // update index of row (row of removed value)
             index[value.getRowIndex()]++;
 
             // If there are more values in the same row, add the next value to the merge heap
