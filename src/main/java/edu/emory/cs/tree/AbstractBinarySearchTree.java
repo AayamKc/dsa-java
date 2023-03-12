@@ -1,5 +1,8 @@
 package edu.emory.cs.tree;
 
+/**
+ * @author Jinho D. Choi ({@code jinho.choi@emory.edu})
+ */
 public abstract class AbstractBinarySearchTree<T extends Comparable<T>, N extends AbstractBinaryNode<T, N>> {
     protected N root;
 
@@ -10,10 +13,17 @@ public abstract class AbstractBinarySearchTree<T extends Comparable<T>, N extend
     /** @return a new node with the specific key. */
     abstract public N createNode(T key);
 
-    public boolean isRoot(N node) { return root == node; }
+    /** @return {@code true} if the specific node is the root of this tree. */
+    public boolean isRoot(N node) {
+        return root == node;
+    }
 
-    public N getRoot() { return root; }
+    /** @return the root of this tree. */
+    public N getRoot() {
+        return root;
+    }
 
+    /** Sets the root of this tree to the specific node. */
     public void setRoot(N node) {
         if (node != null) node.setParent(null);
         root = node;
@@ -47,8 +57,14 @@ public abstract class AbstractBinarySearchTree<T extends Comparable<T>, N extend
         return node.hasRightChild() ? findMaxNode(node.getRightChild()) : node;
     }
 
+//	============================== Add ==============================
+
+    /**
+     * @return the new node that is added to this tree.
+     * If this tree already contains the key, nothing is added.
+     */
     public N add(T key) {
-        N node = null;
+        N node;
 
         if (root == null)
             setRoot(node = createNode(key));
@@ -78,6 +94,8 @@ public abstract class AbstractBinarySearchTree<T extends Comparable<T>, N extend
         return newNode;
     }
 
+//	============================== Remove ==============================
+
     /** @return the removed node with the specific key if exists; otherwise, {@code null}. */
     public N remove(T key) {
         N node = findNode(root, key);
@@ -88,18 +106,6 @@ public abstract class AbstractBinarySearchTree<T extends Comparable<T>, N extend
         }
 
         return node;
-    }
-
-    /** @return the lowest node whose subtree has been updatede. */
-    protected N removeSelf(N node) {
-        N parent = node.getParent();
-        N child = null;
-
-        if (node.hasLeftChild()) child = node.getLeftChild();
-        else if (node.hasRightChild()) child = node.getRightChild();
-        replaceChild(node, child);
-
-        return parent;
     }
 
     private void replaceChild(N oldNode, N newNode) {
@@ -126,5 +132,36 @@ public abstract class AbstractBinarySearchTree<T extends Comparable<T>, N extend
         return parent;
     }
 
+    /** @return the lowest node whose subtree has been updatede. */
+    protected N removeSelf(N node) {
+        N parent = node.getParent();
+        N child = null;
 
+        if (node.hasLeftChild()) child = node.getLeftChild();
+        else if (node.hasRightChild()) child = node.getRightChild();
+        replaceChild(node, child);
+
+        return parent;
+    }
+
+//	============================== Min/Max ==============================
+
+    /** @return {@code true} if the specific key exists; otherwise, {@code false}. */
+    public boolean contains(T key) {
+        return get(key) != null;
+    }
+
+    /** @return the minimum key in this tree if exists; otherwise, {@code null}. */
+    public T min() {
+        return (root != null) ? findMinNode(root).getKey() : null;
+    }
+
+    /** @return the maximum key in this tree if exists; otherwise, {@code null}. */
+    public T max() {
+        return (root != null) ? findMaxNode(root).getKey() : null;
+    }
+
+    public String toString() {
+        return (root != null) ? root.toString() : "null";
+    }
 }

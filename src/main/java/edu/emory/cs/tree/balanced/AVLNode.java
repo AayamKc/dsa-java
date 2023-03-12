@@ -1,4 +1,6 @@
-package edu.emory.cs.tree;
+package edu.emory.cs.tree.balanced;
+
+import edu.emory.cs.tree.AbstractBinaryNode;
 
 public class AVLNode<T extends Comparable<T>> extends AbstractBinaryNode<T, AVLNode<T>> {
     private int height;

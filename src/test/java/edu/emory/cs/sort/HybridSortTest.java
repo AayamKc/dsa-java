@@ -36,7 +36,7 @@ public class HybridSortTest {
 
     @Test
     public void testRobustness() {
-        HybridSort<Integer> gold = new HybridSortBaseline<>();
+        HybridSort<Integer> gold = new HybridSortHW<>();
         HybridSort<Integer> mine = new HybridSortParallel<>();  // TODO: replace with your class
 
         Integer[][] input = {{0, 1, 2, 3}, {7, 6, 5, 4}, {0, 3, 1, 2}, {4, 7, 6, 5}, {9, 8, 11, 10}};

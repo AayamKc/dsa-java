@@ -1,4 +1,7 @@
-package edu.emory.cs.tree;
+package edu.emory.cs.tree.balanced;
+
+import edu.emory.cs.tree.AbstractBinaryNode;
+import edu.emory.cs.tree.AbstractBinarySearchTree;
 
 public abstract class AbstractBalancedBinarySearchTree<T extends Comparable<T>, N extends AbstractBinaryNode<T, N>> extends AbstractBinarySearchTree<T, N> {
     /**

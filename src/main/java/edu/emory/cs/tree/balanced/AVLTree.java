@@ -1,4 +1,7 @@
-package edu.emory.cs.tree;
+package edu.emory.cs.tree.balanced;
+
+import edu.emory.cs.tree.balanced.AVLNode;
+import edu.emory.cs.tree.balanced.AbstractBalancedBinarySearchTree;
 
 public class AVLTree<T extends Comparable<T>> extends AbstractBalancedBinarySearchTree<T, AVLNode<T>> {
     @Override

@@ -1,4 +1,6 @@
-package edu.emory.cs.tree;
+package edu.emory.cs.tree.balanced;
+
+import edu.emory.cs.tree.AbstractBinaryNode;
 
 public class RedBlackNode<T extends Comparable<T>> extends AbstractBinaryNode<T, RedBlackNode<T>> {
     private boolean is_red;
