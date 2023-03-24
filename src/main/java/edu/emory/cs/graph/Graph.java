@@ -1,9 +1,6 @@
 package edu.emory.cs.graph;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -60,5 +57,31 @@ public class Graph {
         }
 
         return outgoing_edges;
+    }
+
+    public boolean containsCycle() {
+        Deque<Integer> notVisited = IntStream.range(0, size()).boxed().collect(Collectors.toCollection(ArrayDeque::new));
+
+        while (!notVisited.isEmpty()) {
+            if (containsCycleAux(notVisited.poll(), notVisited, new HashSet<>()))
+                return true;
+        }
+
+        return false;
+    }
+
+    private boolean containsCycleAux(int target, Deque<Integer> notVisited, Set<Integer> visited) {
+        notVisited.remove(target);
+        visited.add(target);
+
+        for (Edge edge : getIncomingEdges(target)) {
+            if (visited.contains(edge.getSource()))
+                return true;
+
+            if (containsCycleAux(edge.getSource(), notVisited, new HashSet<>(visited)))
+                return true;
+        }
+
+        return false;
     }
 }
