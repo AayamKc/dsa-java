@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Tester {
     public static void main(String[] args) {
-        String dict_file = "/Users/yam/DesktopTwo/253/src/main/java/resources/dict.txt";
+        String dict_file = "resources/dict.txt";
         int max_candidates = 12;
 
         AutocompleteHWExtra autocomplete = new AutocompleteHWExtra(dict_file, max_candidates);
