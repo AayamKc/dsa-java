@@ -1,79 +1,90 @@
 package edu.emory.cs.trie.autocomplete;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import edu.emory.cs.trie.TrieNode;
 
 public class AutocompleteHW extends Autocomplete<List<String>> {
-    private final Map<String, List<String>> selectedCandidates;
+    private final List<List<String>> selectedCandidates;
 
     public AutocompleteHW(String dict_file, int max) {
         super(dict_file, max);
-        selectedCandidates = new HashMap<>();
+        selectedCandidates = new ArrayList<>(getMaxPrefixLength());
+        for (int i = 0; i < getMaxPrefixLength(); i++) {
+            selectedCandidates.add(new ArrayList<>());
+        }
     }
+
     @Override
     public List<String> getCandidates(String prefix) {
         prefix = prefix.trim();
-        int size = getMax();
-        List<String> candidates = new ArrayList<>();
-        Queue<TrieNode<List<String>>> queue = new ArrayDeque<>();
         TrieNode<List<String>> start = find(prefix);
 
         if (start == null) return Collections.emptyList();
 
-        if (selectedCandidates.containsKey(prefix)) {
-            candidates.addAll(selectedCandidates.get(prefix));
-        }
+        List<String> candidates = new ArrayList<>();
+        List<String> selected = selectedCandidates.get(prefix.length() - 1);
+        int selectedIdx = 0;
 
-        queue.add(start);
+        Queue<NodeAndPrefix> queue = new ArrayDeque<>();
+        queue.add(new NodeAndPrefix(start, prefix));
 
-        while (!queue.isEmpty() && candidates.size() < size) {
-            TrieNode<List<String>> node = queue.remove();
-
-            if (node.isEndState() && !candidates.contains(getString(node))) {
-                candidates.add(getString(node));
+        while (!queue.isEmpty() && candidates.size() < getMax()) {
+            while (selectedIdx < selected.size()) {
+                candidates.add(selected.get(selectedIdx++));
+                if (candidates.size() == getMax()) return candidates;
             }
 
-            Map<Character, TrieNode<List<String>>> childrenMap = node.getChildrenMap();
-            for (Character c : new TreeSet<>(childrenMap.keySet())) {
-                TrieNode<List<String>> child = node.getChild(c);
-                queue.add(child);
+            NodeAndPrefix nodeAndPrefix = queue.remove();
+            TrieNode<List<String>> node = nodeAndPrefix.node;
+            String currentPrefix = nodeAndPrefix.prefix;
+
+            if (node.isEndState()) {
+                candidates.add(currentPrefix);
             }
+
+            BreadthFirstSearch(queue, node, currentPrefix);
         }
 
         return candidates;
     }
 
-
-    private void BreadthFirstSearch(Queue<TrieNode<List<String>>> queue, TrieNode<List<String>> node) {
+    private void BreadthFirstSearch(Queue<NodeAndPrefix> queue, TrieNode<List<String>> node, String prefix) {
         Map<Character, TrieNode<List<String>>> childrenMap = node.getChildrenMap();
         List<Character> sortedChildren = childrenMap.keySet().stream().sorted().toList();
 
         for (Character c : sortedChildren) {
             TrieNode<List<String>> child = node.getChild(c);
-            queue.add(child);
+            queue.add(new NodeAndPrefix(child, prefix + c));
         }
     }
-
-    private String getString(TrieNode<List<String>> node) {
-        StringBuilder word = new StringBuilder();
-        TrieNode<List<String>> current = node;
-
-        while (current.getParent() != null) {
-            word.insert(0, current.getKey());
-            current = current.getParent();
-        }
-
-        return word.toString();
-    }
-
 
     @Override
     public void pickCandidate(String prefix, String candidate) {
-        selectedCandidates.putIfAbsent(prefix, new ArrayList<>());
-        List<String> prefixCandidates = selectedCandidates.get(prefix);
+        prefix = prefix.trim();
+        List<String> prefixCandidates = selectedCandidates.get(prefix.length() - 1);
         prefixCandidates.remove(candidate);
-        prefixCandidates.add(0, candidate);
+
+        int index = Collections.binarySearch(prefixCandidates, candidate);
+        index = index < 0 ? -(index + 1) : index;
+        prefixCandidates.add(index, candidate);
+
+        if (prefixCandidates.size() > getMax()) {
+            prefixCandidates.remove(prefixCandidates.size() - 1);
+        }
+    }
+
+    private int getMaxPrefixLength() {
+        return getMax() + 1;
+    }
+
+    private static class NodeAndPrefix {
+        TrieNode<List<String>> node;
+        String prefix;
+
+        NodeAndPrefix(TrieNode<List<String>> node, String prefix) {
+            this.node = node;
+            this.prefix = prefix;
+        }
     }
 }

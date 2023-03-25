@@ -6,11 +6,10 @@ import java.util.List;
 public class Tester {
     public static void main(String[] args) {
         String dict_file = "/Users/yam/DesktopTwo/253/src/main/java/resources/dict.txt";
-        int max_candidates = 13;
+        int max_candidates = 12;
 
-        AutocompleteHW autocomplete = new AutocompleteHW(dict_file, max_candidates);
-        List<String> candidates = autocomplete.getCandidates("a");
+        AutocompleteHWExtra autocomplete = new AutocompleteHWExtra(dict_file, max_candidates);
+        List<String> candidates = autocomplete.getCandidates("mbmjk");
         System.out.println(candidates);
-
     }
 }
