@@ -4,55 +4,44 @@ import java.util.*;
 
 import edu.emory.cs.trie.TrieNode;
 
-public class AutocompleteHWExtra extends Autocomplete<Map<String, Integer>> {
-    private final List<PriorityQueue<Candidate>> selectedCandidates;
+public class AutocompleteHWExtra extends Autocomplete<AutocompleteHWExtra.Candidate> {
 
     public AutocompleteHWExtra(String dict_file, int max) {
         super(dict_file, max);
-        selectedCandidates = new ArrayList<>(getMaxPrefixLength());
-        for (int i = 0; i < getMaxPrefixLength(); i++) {
-            selectedCandidates.add(new PriorityQueue<>(Comparator.comparing((Candidate c) -> c.frequency).reversed().thenComparing(c -> c.timestamp)));
-        }
     }
 
     @Override
     public List<String> getCandidates(String prefix) {
         prefix = prefix.trim();
-        TrieNode<Map<String, Integer>> start = find(prefix);
+        TrieNode<Candidate> start = find(prefix);
 
         if (start == null) return Collections.emptyList();
 
-        List<String> candidates = new ArrayList<>();
-        PriorityQueue<Candidate> selected = selectedCandidates.get(prefix.length() - 1);
+        PriorityQueue<Candidate> candidates = new PriorityQueue<>();
         Queue<NodeAndPrefix> queue = new ArrayDeque<>();
         queue.add(new NodeAndPrefix(start, prefix));
 
         while (!queue.isEmpty() && candidates.size() < getMax()) {
-            while (!selected.isEmpty()) {
-                candidates.add(selected.poll().word);
-                if (candidates.size() == getMax()) return candidates;
-            }
-
             NodeAndPrefix nodeAndPrefix = queue.remove();
-            TrieNode<Map<String, Integer>> node = nodeAndPrefix.node;
+            TrieNode<Candidate> node = nodeAndPrefix.node;
             String currentPrefix = nodeAndPrefix.prefix;
 
             if (node.isEndState()) {
-                candidates.add(currentPrefix);
+                candidates.add(node.getValue());
             }
 
             BreadthFirstSearch(queue, node, currentPrefix);
         }
 
-        return candidates;
+        return candidates.stream().map(Candidate::getWord).toList();
     }
 
-    private void BreadthFirstSearch(Queue<NodeAndPrefix> queue, TrieNode<Map<String, Integer>> node, String prefix) {
-        Map<Character, TrieNode<Map<String, Integer>>> childrenMap = node.getChildrenMap();
+    private void BreadthFirstSearch(Queue<NodeAndPrefix> queue, TrieNode<Candidate> node, String prefix) {
+        Map<Character, TrieNode<Candidate>> childrenMap = node.getChildrenMap();
         List<Character> sortedChildren = childrenMap.keySet().stream().sorted().toList();
 
         for (Character c : sortedChildren) {
-            TrieNode<Map<String, Integer>> child = node.getChild(c);
+            TrieNode<Candidate> child = node.getChild(c);
             queue.add(new NodeAndPrefix(child, prefix + c));
         }
     }
@@ -60,49 +49,56 @@ public class AutocompleteHWExtra extends Autocomplete<Map<String, Integer>> {
     @Override
     public void pickCandidate(String prefix, String candidate) {
         prefix = prefix.trim();
-        TrieNode<Map<String, Integer>> node = find(prefix);
+        TrieNode<Candidate> node = find(prefix + candidate);
 
-        if (node != null) {
-            Map<String, Integer> map = node.getValue();
-            if (map == null) {
-                map = new HashMap<>();
-                node.setValue(map);
-            }
-            map.put(candidate, map.getOrDefault(candidate, 0) + 1);
-
-            PriorityQueue<Candidate> prefixCandidates = selectedCandidates.get(prefix.length() - 1);
-            prefixCandidates.removeIf(c -> c.word.equals(candidate));
-            prefixCandidates.offer(new Candidate(candidate, map.get(candidate), System.nanoTime()));
-
-            if (prefixCandidates.size() > getMax()) {
-                prefixCandidates.poll();
-            }
+        if (node == null) {
+            super.put(prefix + candidate, new Candidate(candidate));
+            node = find(prefix + candidate);
         }
-    }
 
-    private int getMaxPrefixLength() {
-        return getMax() + 1;
+        node.getValue().incrementFrequency();
+        node.getValue().updateTimestamp();
     }
 
     private static class NodeAndPrefix {
-        TrieNode<Map<String, Integer>> node;
+        TrieNode<Candidate> node;
         String prefix;
 
-        NodeAndPrefix(TrieNode<Map<String, Integer>> node, String prefix) {
+        NodeAndPrefix(TrieNode<Candidate> node, String prefix) {
             this.node = node;
             this.prefix = prefix;
         }
     }
 
-    private static class Candidate {
-        String word;
-        int frequency;
-        long timestamp;
+    static class Candidate implements Comparable<Candidate> {
+        private final String word;
+        private int frequency;
+        private long timestamp;
 
-        Candidate(String word, int frequency, long timestamp) {
+        public Candidate(String word) {
             this.word = word;
-            this.frequency = frequency;
-            this.timestamp = timestamp;
+            this.frequency = 0;
+            this.timestamp = System.currentTimeMillis();
+        }
+
+        public String getWord() {
+            return word;
+        }
+
+        public void incrementFrequency() {
+            frequency++;
+        }
+
+        public void updateTimestamp() {
+            timestamp = System.currentTimeMillis();
+        }
+
+        @Override
+        public int compareTo(Candidate o) {
+            if (frequency != o.frequency) {
+                return Integer.compare(o.frequency, frequency);
+            }
+            return Long.compare(o.timestamp, timestamp);
         }
     }
 }

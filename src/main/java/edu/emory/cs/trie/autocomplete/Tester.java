@@ -9,7 +9,13 @@ public class Tester {
         int max_candidates = 12;
 
         AutocompleteHWExtra autocomplete = new AutocompleteHWExtra(dict_file, max_candidates);
-        List<String> candidates = autocomplete.getCandidates("mbmjk");
+        List<String> candidates = autocomplete.getCandidates("mon");
+        System.out.println(candidates);
+        autocomplete.pickCandidate("mon", "monopoly");
+        candidates = autocomplete.getCandidates("mon");
+        System.out.println(candidates);
+        autocomplete.pickCandidate("mon", "mononucleosis");
+        candidates = autocomplete.getCandidates("mon");
         System.out.println(candidates);
     }
 }

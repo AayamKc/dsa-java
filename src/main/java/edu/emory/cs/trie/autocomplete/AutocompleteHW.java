@@ -72,8 +72,15 @@ public class AutocompleteHW extends Autocomplete<List<String>> {
         if (prefixCandidates.size() > getMax()) {
             prefixCandidates.remove(prefixCandidates.size() - 1);
         }
-    }
 
+        // Insert the prefix and candidate into the trie if they don't exist
+        if (find(prefix) == null) {
+            put(prefix, null);
+        }
+        if (find(candidate) == null) {
+            put(candidate, null);
+        }
+    }
     private int getMaxPrefixLength() {
         return getMax() + 1;
     }
