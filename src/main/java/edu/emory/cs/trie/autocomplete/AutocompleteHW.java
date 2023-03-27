@@ -18,6 +18,23 @@ public class AutocompleteHW extends Autocomplete<List<String>> {
     @Override
     public List<String> getCandidates(String prefix) {
         prefix = prefix.trim();
+        if (prefix.isEmpty()) {
+            List<String> candidates = new ArrayList<>();
+            Map<Character, TrieNode<List<String>>> childrenMap = getRoot().getChildrenMap();
+            List<Character> sortedChildren = childrenMap.keySet().stream().sorted().toList();
+
+            for (Character c : sortedChildren) {
+                TrieNode<List<String>> child = getRoot().getChild(c);
+                if (child.isEndState()) {
+                    candidates.add(Character.toString(c));
+                }
+                BreadthFirstSearch(new ArrayDeque<>(), child, Character.toString(c));
+                if (candidates.size() == getMax()) return candidates;
+            }
+
+            return candidates;
+        }
+
         TrieNode<List<String>> start = find(prefix);
 
         if (start == null) return Collections.emptyList();
@@ -62,6 +79,13 @@ public class AutocompleteHW extends Autocomplete<List<String>> {
     @Override
     public void pickCandidate(String prefix, String candidate) {
         prefix = prefix.trim();
+        candidate = candidate.trim(); // Trim the candidate as well
+
+        // Check if prefix or candidate is empty, and return if either is true
+        if (prefix.isEmpty() || candidate.isEmpty()) {
+            return;
+        }
+
         List<String> prefixCandidates = selectedCandidates.get(prefix.length() - 1);
         prefixCandidates.remove(candidate);
 
@@ -73,7 +97,6 @@ public class AutocompleteHW extends Autocomplete<List<String>> {
             prefixCandidates.remove(prefixCandidates.size() - 1);
         }
 
-        // Insert the prefix and candidate into the trie if they don't exist
         if (find(prefix) == null) {
             put(prefix, null);
         }
@@ -81,6 +104,7 @@ public class AutocompleteHW extends Autocomplete<List<String>> {
             put(candidate, null);
         }
     }
+
     private int getMaxPrefixLength() {
         return getMax() + 1;
     }

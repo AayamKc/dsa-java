@@ -5,17 +5,16 @@ import java.util.List;
 
 public class Tester {
     public static void main(String[] args) {
-        String dict_file = "resources/dict.txt";
-        int max_candidates = 12;
+        String dict_file = "/Users/yam/DesktopTwo/253/src/main/java/resources/dict.txt";
+        int max_candidates = 3;
 
-        AutocompleteHWExtra autocomplete = new AutocompleteHWExtra(dict_file, max_candidates);
-        List<String> candidates = autocomplete.getCandidates("mon");
+        AutocompleteHW autocomplete = new AutocompleteHW(dict_file, max_candidates);
+        List<String> candidates = autocomplete.getCandidates("m");
         System.out.println(candidates);
-        autocomplete.pickCandidate("mon", "monopoly");
-        candidates = autocomplete.getCandidates("mon");
+        autocomplete.pickCandidate("m", " ");
+        candidates = autocomplete.getCandidates("m");
         System.out.println(candidates);
-        autocomplete.pickCandidate("mon", "mononucleosis");
-        candidates = autocomplete.getCandidates("mon");
-        System.out.println(candidates);
+
+
     }
 }
