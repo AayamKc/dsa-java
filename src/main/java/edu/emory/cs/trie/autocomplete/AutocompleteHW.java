@@ -79,9 +79,8 @@ public class AutocompleteHW extends Autocomplete<List<String>> {
     @Override
     public void pickCandidate(String prefix, String candidate) {
         prefix = prefix.trim();
-        candidate = candidate.trim(); // Trim the candidate as well
+        candidate = candidate.trim();
 
-        // Check if prefix or candidate is empty, and return if either is true
         if (prefix.isEmpty() || candidate.isEmpty()) {
             return;
         }
