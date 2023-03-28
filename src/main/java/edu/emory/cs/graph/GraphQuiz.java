@@ -1,6 +1,8 @@
 package edu.emory.cs.graph;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class GraphQuiz extends Graph {
 
@@ -13,37 +15,31 @@ public class GraphQuiz extends Graph {
     }
 
     public int numberOfCycles() {
-        int numCycles = 0;
-        Deque<Integer> notVisited = new ArrayDeque<>(size());
-        for (int i = 0; i < size(); i++) notVisited.add(i);
-
+        Deque<Integer> notVisited = IntStream.range(0, size()).boxed().collect(Collectors.toCollection(ArrayDeque::new));
+        Deque<Integer> visited = new ArrayDeque<>();
+        int count = 0;
         while (!notVisited.isEmpty()) {
-            int target = notVisited.poll();
-            Set<Integer> visited = new HashSet<>();
-            visited.add(target);
-            numCycles += numberOfCyclesAux(target, notVisited, visited);
+            Integer vertex = notVisited.poll();
+            count += numberOfCyclesAux(vertex, notVisited, visited, vertex);
+            visited.add(vertex);
         }
-
-        return numCycles;
+        return count;
     }
 
-    private int numberOfCyclesAux(int target, Deque<Integer> notVisited, Set<Integer> visited) {
-        int numCycles = 0;
+    public int numberOfCyclesAux(int target, Deque<Integer> notVisited, Deque<Integer> visited, int origin) {
+        int count = 0;
         for (Edge edge : getIncomingEdges(target)) {
-            int source = edge.getSource();
-            if (visited.contains(source)) {
-                if (visited.size() >= 2 && (source != target || edge.getWeight() != 0)) {
-                    numCycles++;
-                    break;
-                }
-            } else {
-                visited.add(source);
-                numCycles += numberOfCyclesAux(source, notVisited, visited);
-                visited.remove(source);
+            if (visited.contains(edge.getSource())) {
+                continue;
             }
+            if (edge.getSource() == origin) {
+                count++;
+                continue;
+            }
+            visited.add(edge.getSource());
+            count += numberOfCyclesAux(edge.getSource(), notVisited, visited, origin);
+            visited.removeLast();
         }
-        notVisited.remove(target);
-        return numCycles;
+        return count;
     }
-
 }
