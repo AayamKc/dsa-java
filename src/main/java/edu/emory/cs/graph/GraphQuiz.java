@@ -15,18 +15,19 @@ public class GraphQuiz extends Graph {
     }
 
     public int numberOfCycles() {
-        Deque<Integer> notVisited = IntStream.range(0, size()).boxed().collect(Collectors.toCollection(ArrayDeque::new));
-        Deque<Integer> visited = new ArrayDeque<>();
+        Set<Integer> notVisited = IntStream.range(0, size()).boxed().collect(Collectors.toSet());
+        Set<Integer> visited = new HashSet<>();
         int count = 0;
         while (!notVisited.isEmpty()) {
-            Integer vertex = notVisited.poll();
+            Integer vertex = notVisited.iterator().next();
+            notVisited.remove(vertex);
             count += numberOfCyclesAux(vertex, notVisited, visited, vertex);
             visited.add(vertex);
         }
         return count;
     }
 
-    public int numberOfCyclesAux(int target, Deque<Integer> notVisited, Deque<Integer> visited, int origin) {
+    public int numberOfCyclesAux(int target, Set<Integer> notVisited, Set<Integer> visited, int origin) {
         int count = 0;
         for (Edge edge : getIncomingEdges(target)) {
             if (visited.contains(edge.getSource())) {
@@ -38,7 +39,7 @@ public class GraphQuiz extends Graph {
             }
             visited.add(edge.getSource());
             count += numberOfCyclesAux(edge.getSource(), notVisited, visited, origin);
-            visited.removeLast();
+            visited.remove(edge.getSource());
         }
         return count;
     }
