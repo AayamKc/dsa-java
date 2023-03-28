@@ -84,4 +84,37 @@ public class Graph {
 
         return false;
     }
+
+    public List<Integer> topological_sort(boolean depth_first) {
+        Deque<Integer> global = getVerticesWithNoIncomingEdges();
+        List<Deque<Edge>> outgoingEdgesAll = getOutgoingEdges();
+        List<Integer> order = new ArrayList<>();
+
+        while (!global.isEmpty()) {
+            Deque<Integer> local = new ArrayDeque<>();
+            int vertex = global.poll();
+            order.add(vertex);
+            Deque<Edge> outgoingEdges = outgoingEdgesAll.get(vertex);
+
+            while (!outgoingEdges.isEmpty()) {
+                Edge edge = outgoingEdges.poll();
+
+                //Remove edge in all incomingEdges of the target vertex
+                List<Edge> incomingEdges = getIncomingEdges(edge.getTarget());
+                incomingEdges.remove(edge);
+
+                //If the vertex has no incoming edges, add it to the local queue awaited to be added to the global deque
+                if (incomingEdges.isEmpty())
+                    local.add(edge.getTarget());
+            }
+
+            //Transfer all vertices in local to global
+            while (!local.isEmpty())
+                if (depth_first) global.addFirst(local.removeLast());
+                else global.addLast(local.removeFirst());
+        }
+
+        if (!hasNoEdge()) throw new IllegalArgumentException("Cyclic graph.");
+        return order;
+    }
 }
