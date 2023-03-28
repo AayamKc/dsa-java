@@ -1,9 +1,9 @@
 package edu.emory.cs.graph;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class GraphQuiz extends Graph {
+
     public GraphQuiz(int size) {
         super(size);
     }
@@ -13,37 +13,37 @@ public class GraphQuiz extends Graph {
     }
 
     public int numberOfCycles() {
-        int count = 0;
-        Set<Integer> visited = new HashSet<>();
+        int numCycles = 0;
+        Deque<Integer> notVisited = new ArrayDeque<>(size());
+        for (int i = 0; i < size(); i++) notVisited.add(i);
 
-        for (int i = 0; i < size(); i++) {
-            if (!visited.contains(i)) {
-                Set<Integer> onStack = new HashSet<>();
-                count += dfs(i, visited, onStack, -1);
-            }
+        while (!notVisited.isEmpty()) {
+            int target = notVisited.poll();
+            Set<Integer> visited = new HashSet<>();
+            visited.add(target);
+            numCycles += numberOfCyclesAux(target, notVisited, visited);
         }
 
-        return count;
+        return numCycles;
     }
 
-    private int dfs(int vertex, Set<Integer> visited, Set<Integer> onStack, int parent) {
-        visited.add(vertex);
-        onStack.add(vertex);
-        int count = 0;
-
-        for (Edge edge : getIncomingEdges(vertex)) {
-            int nextVertex = edge.getSource();
-
-            if (nextVertex != parent) {
-                if (!visited.contains(nextVertex)) {
-                    count += dfs(nextVertex, visited, onStack, vertex);
-                } else if (onStack.contains(nextVertex)) {
-                    count++;
+    private int numberOfCyclesAux(int target, Deque<Integer> notVisited, Set<Integer> visited) {
+        int numCycles = 0;
+        for (Edge edge : getIncomingEdges(target)) {
+            int source = edge.getSource();
+            if (visited.contains(source)) {
+                if (visited.size() >= 2 && (source != target || edge.getWeight() != 0)) {
+                    numCycles++;
+                    break;
                 }
+            } else {
+                visited.add(source);
+                numCycles += numberOfCyclesAux(source, notVisited, visited);
+                visited.remove(source);
             }
         }
-
-        onStack.remove(vertex);
-        return count;
+        notVisited.remove(target);
+        return numCycles;
     }
+
 }
