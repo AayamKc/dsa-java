@@ -237,17 +237,5 @@ public class HybridSortHW<T extends Comparable<T>> implements HybridSort<T> {
         }
     }
 
-    public static <T extends Comparable<T>> boolean isPartiallySorted(T[] arr) {
-        int numOutOfOrder = 0;
-        for (int i = 1; i < arr.length; i++) {
-            if (arr[i].compareTo(arr[i-1]) < 0) {
-                numOutOfOrder++;
-                if (numOutOfOrder > arr.length/4) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
     
 }
