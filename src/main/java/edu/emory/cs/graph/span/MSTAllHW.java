@@ -2,69 +2,96 @@ package edu.emory.cs.graph.span;
 
 import edu.emory.cs.graph.Edge;
 import edu.emory.cs.graph.Graph;
-import edu.emory.cs.set.DisjointSet;
 
 import java.util.*;
 
 public class MSTAllHW implements MSTAll {
-
-    private double minWeight;
-    private Set<SpanningTree> allSpanningTrees;
-
     @Override
     public List<SpanningTree> getMinimumSpanningTrees(Graph graph) {
-        minWeight = Double.POSITIVE_INFINITY;
-        allSpanningTrees = new HashSet<>();
-        DisjointSet forest = new DisjointSet(graph.size());
-        PriorityQueue<Edge> edges = new PriorityQueue<>(graph.getAllEdges());
+        SpanningTree initialTree = primSpan(graph);
+        double targetWeight = initialTree.getTotalWeight();
 
-        buildMSTs(0, 0.0, edges, new SpanningTree(), forest, graph.size() - 1);
+        if (initialTree.size() == 0) {
+            return Collections.emptyList();
+        }
 
         List<SpanningTree> result = new ArrayList<>();
-        for (SpanningTree tree : allSpanningTrees) {
-            if (tree.getTotalWeight() == minWeight) {
-                result.add(tree);
-            }
-        }
+        PriorityQueue<Edge> queue = new PriorityQueue<>();
+        SpanningTree tree = new SpanningTree();
+        Set<Integer> visited = new HashSet<>();
+
+        addEdgesToQueue(queue, visited, graph, 0);
+        primSpanRecur(graph, targetWeight, queue, visited, tree, result);
+
         return result;
     }
 
-    private void buildMSTs(int index, double weight, PriorityQueue<Edge> edges, SpanningTree currentTree, DisjointSet forest, int remainingEdges) {
-        if (remainingEdges == 0) {
-            if (weight < minWeight) {
-                minWeight = weight;
-                allSpanningTrees.clear();
-            }
-            if (weight == minWeight) {
-                allSpanningTrees.add(new SpanningTree(currentTree));
-            }
+    private void primSpanRecur(Graph graph, double targetWeight, PriorityQueue<Edge> queue, Set<Integer> visited, SpanningTree tree, List<SpanningTree> result) {
+        if (tree.getTotalWeight() >= targetWeight) {
             return;
         }
 
-        if (index < edges.size()) {
-            Edge edge = edges.poll();
-            PriorityQueue<Edge> remainingEdgesQueue = new PriorityQueue<>(edges);
+        PriorityQueue<Edge> queueCopy = new PriorityQueue<>(queue);
 
-            int source = edge.getSource();
-            int target = edge.getTarget();
-            double edgeWeight = edge.getWeight();
+        while (!queue.isEmpty()) {
+            Edge edge = queue.poll();
+            queueCopy.poll();
 
-            if (weight + edgeWeight * remainingEdges <= minWeight) {
-                int sourceRoot = forest.find(source);
-                int targetRoot = forest.find(target);
-
-                if (sourceRoot != targetRoot) {
-                    DisjointSet newForest = new DisjointSet(forest);
-                    newForest.union(sourceRoot, targetRoot);
-
-                    SpanningTree newTree = new SpanningTree(currentTree);
-                    newTree.addEdge(edge);
-
-                    buildMSTs(index + 1, weight + edgeWeight, remainingEdgesQueue, newTree, newForest, remainingEdges - 1);
+            if (visited.contains(edge.getSource())) {
+                primSpanRecur(graph, targetWeight, queueCopy, visited, tree, result);
+            } else {
+                if (queue.peek() != null && edge.getWeight() == queue.peek().getWeight()) {
+                    primSpanRecur(graph, targetWeight, new PriorityQueue<>(queueCopy), new HashSet<>(visited), new SpanningTree(tree), result);
                 }
 
-                buildMSTs(index + 1, weight, remainingEdgesQueue, currentTree, forest, remainingEdges);
+                if (tree.getTotalWeight() >= targetWeight) {
+                    return;
+                }
+
+                tree.addEdge(edge);
+
+                if (tree.size() + 1 == graph.size() && tree.getTotalWeight() == targetWeight) {
+                    result.add(tree);
+                    return;
+                }
+
+                int edgeSource = edge.getSource();
+                addEdgesToQueue(queue, visited, graph, edgeSource);
+                addEdgesToQueue(queueCopy, visited, graph, edgeSource);
             }
         }
     }
+
+    public SpanningTree primSpan(Graph graph) {
+        PriorityQueue<Edge> queue = new PriorityQueue<>();
+        SpanningTree tree = new SpanningTree();
+        Set<Integer> visited = new HashSet<>();
+
+        addEdgesToQueue(queue, visited, graph, 0);
+
+        while (!queue.isEmpty()) {
+            Edge edge = queue.poll();
+            int source = edge.getSource();
+
+            if (!visited.contains(source)) {
+                tree.addEdge(edge);
+                if (tree.size() + 1 == graph.size()) break;
+                addEdgesToQueue(queue, visited, graph, source);
+            }
+        }
+
+        return tree;
+    }
+
+    private void addEdgesToQueue(PriorityQueue<Edge> queue, Set<Integer> visited, Graph graph, int target) {
+        visited.add(target);
+
+        for (Edge edge : graph.getIncomingEdges(target)) {
+            int source = edge.getSource();
+            if (!visited.contains(source)) {
+                queue.add(edge);
+            }
+        }
+    }
+
 }
