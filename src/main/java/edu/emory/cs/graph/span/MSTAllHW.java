@@ -18,13 +18,12 @@ public class MSTAllHW implements MSTAll {
             return result;
         }
 
-
         PriorityQueue<Edge> queue = new PriorityQueue<>();
         SpanningTree tree = new SpanningTree();
         Set<Integer> visited = new HashSet<>();
 
         addEdgesToQueue(queue, visited, graph, 0);
-        primSpanRecur(graph, targetWeight, queue, visited, tree, result);
+        primRecursive(graph, targetWeight, queue, visited, tree, result);
 
         if (result.isEmpty()) {
             result.add(initialTree);
@@ -33,7 +32,7 @@ public class MSTAllHW implements MSTAll {
         return result;
     }
 
-    private void primSpanRecur(Graph graph, double targetWeight, PriorityQueue<Edge> queue, Set<Integer> visited, SpanningTree tree, List<SpanningTree> result) {
+    private void primRecursive(Graph graph, double targetWeight, PriorityQueue<Edge> queue, Set<Integer> visited, SpanningTree tree, List<SpanningTree> result) {
         if (tree.getTotalWeight() >= targetWeight) {
             return;
         }
@@ -45,10 +44,10 @@ public class MSTAllHW implements MSTAll {
             queueCopy.poll();
 
             if (visited.contains(edge.getSource())) {
-                primSpanRecur(graph, targetWeight, queueCopy, visited, tree, result);
+                primRecursive(graph, targetWeight, queueCopy, visited, tree, result);
             } else {
                 if (queue.peek() != null && edge.getWeight() == queue.peek().getWeight()) {
-                    primSpanRecur(graph, targetWeight, new PriorityQueue<>(queueCopy), new HashSet<>(visited), new SpanningTree(tree), result);
+                    primRecursive(graph, targetWeight, new PriorityQueue<>(queueCopy), new HashSet<>(visited), new SpanningTree(tree), result);
                 }
 
                 if (tree.getTotalWeight() >= targetWeight) {

@@ -25,6 +25,32 @@ public class MSTAllHWTest {
     }
 
     @Test
+    public void testUniqueGraph() {
+        MSTAll gold = new MSTAllHW();
+        long st, et;
+
+        st = System.currentTimeMillis();
+        List<SpanningTree> list = gold.getMinimumSpanningTrees(getUniqueGraph());
+        et = System.currentTimeMillis();
+        System.out.printf("%3d: %8d, %d\n", 6, list.size(), et - st);
+    }
+
+    Graph getUniqueGraph() {
+        Graph graph = new Graph(6);
+
+        graph.setUndirectedEdge(0, 1, 1);
+        graph.setUndirectedEdge(0, 2, 1);
+        graph.setUndirectedEdge(0, 3, 1);
+        graph.setUndirectedEdge(1, 2, 1);
+        graph.setUndirectedEdge(1, 3, 1);
+        graph.setUndirectedEdge(2, 3, 1);
+        graph.setUndirectedEdge(3, 4, 1);
+        graph.setUndirectedEdge(4, 5, 1);
+
+        return graph;
+    }
+
+    @Test
     public void test() {
         List<Graph> graphs = new ArrayList<>();
         graphs.add(getGraph1a());
