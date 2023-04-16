@@ -6,22 +6,29 @@ import edu.emory.cs.graph.Graph;
 import java.util.*;
 
 public class MSTAllHW implements MSTAll {
+
     @Override
     public List<SpanningTree> getMinimumSpanningTrees(Graph graph) {
         SpanningTree initialTree = primSpan(graph);
         double targetWeight = initialTree.getTotalWeight();
+        List<SpanningTree> result = new ArrayList<>();
 
-        if (initialTree.size() == 0) {
-            return Collections.emptyList();
+        if (initialTree.size() == 0 && graph.size() == 1) {
+            result.add(initialTree);
+            return result;
         }
 
-        List<SpanningTree> result = new ArrayList<>();
+
         PriorityQueue<Edge> queue = new PriorityQueue<>();
         SpanningTree tree = new SpanningTree();
         Set<Integer> visited = new HashSet<>();
 
         addEdgesToQueue(queue, visited, graph, 0);
         primSpanRecur(graph, targetWeight, queue, visited, tree, result);
+
+        if (result.isEmpty()) {
+            result.add(initialTree);
+        }
 
         return result;
     }
@@ -67,16 +74,18 @@ public class MSTAllHW implements MSTAll {
         SpanningTree tree = new SpanningTree();
         Set<Integer> visited = new HashSet<>();
 
-        addEdgesToQueue(queue, visited, graph, 0);
+        if (graph.size() > 0) {
+            addEdgesToQueue(queue, visited, graph, 0);
 
-        while (!queue.isEmpty()) {
-            Edge edge = queue.poll();
-            int source = edge.getSource();
+            while (!queue.isEmpty()) {
+                Edge edge = queue.poll();
+                int source = edge.getSource();
 
-            if (!visited.contains(source)) {
-                tree.addEdge(edge);
-                if (tree.size() + 1 == graph.size()) break;
-                addEdgesToQueue(queue, visited, graph, source);
+                if (!visited.contains(source)) {
+                    tree.addEdge(edge);
+                    if (tree.size() + 1 == graph.size()) break;
+                    addEdgesToQueue(queue, visited, graph, source);
+                }
             }
         }
 
@@ -93,5 +102,4 @@ public class MSTAllHW implements MSTAll {
             }
         }
     }
-
 }
