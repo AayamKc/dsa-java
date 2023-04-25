@@ -1,4 +1,4 @@
-package edu.emory.cs.dynamic;
+package edu.emory.cs.dynamic.fibonacci;
 
 public class FibonacciIterative implements Fibonacci {
     @Override
