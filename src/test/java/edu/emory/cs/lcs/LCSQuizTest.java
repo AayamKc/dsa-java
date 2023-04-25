@@ -19,8 +19,8 @@ public class LCSQuizTest {
             System.out.println(s);
         }
 
-        String c = "ABCDGH";
-        String d = "AEDFHR";
+        String c = "ABCBDAB";
+        String d = "BDCAB";
 
         Set<String> result2 = lcsQuiz.solveAll(c, d);
         System.out.println("\nAll Longest Common Subsequences for \"" + c + "\" and \"" + d + "\":");

@@ -12,19 +12,21 @@ public class LCSQuiz extends LCSDynamic {
         for (int[] row : table) {
             Arrays.fill(row, -1);
         }
-        solveWithMemoization(c, d, c.length, d.length, table);
+        LCSRecursive(c, d, c.length, d.length, table);
         return findAllLCS(c, d, c.length, d.length, table);
     }
 
-    private int solveWithMemoization(char[] c, char[] d, int i, int j, int[][] table) {
-        if (i == 0 || j == 0) return 0;
-        if (table[i][j] != -1) return table[i][j];
+    private int LCSRecursive(char[] c, char[] d, int i, int j, int[][] table) {
+        if (i == 0 || j == 0) {
+            table[i][j] = 0;
+            return 0;
+        }
 
         if (c[i - 1] == d[j - 1]) {
-            table[i][j] = 1 + solveWithMemoization(c, d, i - 1, j - 1, table);
+            table[i][j] = 1 + LCSRecursive(c, d, i - 1, j - 1, table);
         } else {
-            table[i][j] = Math.max(solveWithMemoization(c, d, i - 1, j, table),
-                    solveWithMemoization(c, d, i, j - 1, table));
+            table[i][j] = Math.max(LCSRecursive(c, d, i - 1, j, table),
+                    LCSRecursive(c, d, i, j - 1, table));
         }
         return table[i][j];
     }
